@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EST-IMS®</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root {
+    --bg-deep:#0d1117;--bg-main:#161b22;--bg-panel:#1c2230;--bg-card:#21283a;
+    --bg-hover:#2a3347;--bg-active:#1e3a5f;--border:#2d3748;--border-light:#3d4f6a;
+    --accent-blue:#3b82f6;--accent-cyan:#06b6d4;--accent-green:#10b981;
+    --accent-amber:#f59e0b;--accent-red:#ef4444;--text-main:#e2e8f0;
+    --text-muted:#8b9db8;--text-dim:#4a5568;--header-col:#60a5fa;--row-alt:#1a2236;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:var(--bg-deep);color:var(--text-main);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+  /* TOP BAR */
+  .topbar{background:var(--bg-main);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100;}
+  .topbar-brand{display:flex;align-items:center;gap:12px;}
+  .brand-icon{width:38px;height:38px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(255,255,255,.25);}
+  .brand-text h1{font-size:15px;font-weight:600;letter-spacing:.3px;}
+  .brand-text p{font-size:11px;color:var(--text-muted);margin-top:1px;}
+  .topbar-right{display:flex;align-items:center;gap:16px;}
+  .clock{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-muted);letter-spacing:1px;}
+  .topbar-actions{display:flex;gap:8px;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap;}
+  .btn-primary{background:var(--accent-blue);color:#fff;}
+  .btn-primary:hover{background:#2563eb;transform:translateY(-1px);}
+  .btn-warning{background:var(--accent-amber);color:#000;}
+  .btn-warning:hover{background:#d97706;transform:translateY(-1px);}
+  .btn-success{background:var(--accent-green);color:#fff;}
+  .btn-success:hover{background:#059669;transform:translateY(-1px);}
+  .btn-about{background:#ffffff;color:#0d1117;font-weight:600;}
+  .btn-about:hover{background:#e2e8f0;transform:translateY(-1px);}
+  .btn-logout{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.3);font-weight:600;}
+  .btn-logout:hover{background:rgba(239,68,68,.28);transform:translateY(-1px);}
+  .badge-view{background:rgba(16,185,129,.12);color:var(--accent-green);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;letter-spacing:.5px;}
+
+  /* LAYOUT */
+  .layout{display:flex;flex:1;overflow:hidden;min-height:0;}
+
+  /* SIDEBAR */
+  .sidebar{width:220px;background:var(--bg-main);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+  .sidebar-section{padding:14px 12px 8px;}
+  .sidebar-label{font-size:10px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.2px;padding:0 6px;margin-bottom:6px;}
+  .month-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 6px;}
+  .month-pill{padding:7px 6px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center;}
+  .month-pill:hover{border-color:var(--accent-blue);color:var(--text-main);background:var(--bg-hover);}
+  .month-pill.active{background:var(--accent-blue);border-color:var(--accent-blue);color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.35);}
+  .month-pill .num{display:block;font-size:9px;opacity:.6;margin-top:1px;}
+  .file-selector{display:flex;flex-direction:column;gap:5px;padding:0 6px;}
+  .file-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);cursor:pointer;transition:all .15s;color:var(--text-muted);font-size:13px;}
+  .file-item:hover{border-color:var(--accent-blue);color:var(--text-main);background:var(--bg-hover);}
+  .file-item.active{border-color:var(--accent-cyan);background:var(--bg-active);color:var(--accent-cyan);}
+  .sheet-tabs-list{display:flex;flex-direction:column;gap:3px;padding:0 6px;}
+  .sheet-tab{padding:8px 12px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .15s;border:1px solid transparent;display:flex;align-items:center;gap:8px;}
+  .sheet-tab:hover{background:var(--bg-hover);color:var(--text-main);}
+  .sheet-tab.active{background:var(--bg-active);border-color:var(--border-light);color:#fff;}
+  .sheet-tab .st-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-blue);flex-shrink:0;}
+  .sheet-tab.active .st-dot{background:var(--accent-cyan);}
+
+  /* MAIN */
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;background:var(--bg-deep);}
+  .content-header{background:var(--bg-panel);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .content-title{display:flex;align-items:center;gap:10px;}
+  .content-title .ct-icon{width:30px;height:30px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(6,182,212,.2));border:1px solid rgba(59,130,246,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .content-title h2{font-size:15px;font-weight:600;}
+  .content-title .breadcrumb{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .content-meta{display:flex;align-items:center;gap:12px;}
+  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+  .badge-blue{background:rgba(59,130,246,.15);color:var(--accent-blue);border:1px solid rgba(59,130,246,.3);}
+  .toolbar{background:var(--bg-panel);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  .search-wrap{position:relative;flex:1;max-width:360px;}
+  .search-wrap .s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px;pointer-events:none;}
+  .search-input{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:7px 12px 7px 34px;color:var(--text-main);font-family:inherit;font-size:13px;outline:none;transition:border-color .15s;direction:ltr;}
+  .search-input::placeholder{color:var(--text-dim);}
+  .search-input:focus{border-color:var(--accent-blue);}
+  .table-wrap{flex:1;overflow:auto;min-height:0;}
+  .data-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .data-table thead{position:sticky;top:0;z-index:10;}
+  .data-table thead th{background:var(--bg-panel);color:var(--header-col);font-weight:600;padding:11px 16px;text-align:center;border-bottom:2px solid var(--border);border-right:1px solid var(--border);white-space:nowrap;font-size:12.5px;letter-spacing:.3px;}
+  .data-table thead th:last-child{border-right:none;}
+  .data-table tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+  .data-table tbody tr:nth-child(even){background:var(--row-alt);}
+  .data-table tbody tr:hover{background:var(--bg-hover);}
+  .data-table tbody td{padding:9px 16px;text-align:center;border-right:1px solid var(--border);color:var(--text-main);font-size:13px;}
+  .data-table tbody td:last-child{border-right:none;}
+  .cell-date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);}
+  .cell-in{color:var(--accent-green);font-weight:600;}
+  .cell-out{color:var(--accent-red);font-weight:600;}
+  .cell-balance{font-weight:600;color:var(--accent-cyan);}
+  .cell-null{color:var(--text-dim);}
+  .row-num{color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:11px;min-width:40px;}
+  .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);gap:12px;padding:60px;text-align:center;}
+  .empty-state .es-icon{font-size:52px;opacity:.3;}
+  .empty-state h3{font-size:16px;font-weight:500;color:var(--text-muted);}
+  .empty-state p{font-size:13px;color:var(--text-dim);max-width:300px;}
+  .loading{display:flex;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-muted);}
+  .spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent-blue);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .statusbar{background:var(--bg-main);border-top:1px solid var(--border);padding:5px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .statusbar-left,.statusbar-right{display:flex;align-items:center;gap:16px;font-size:11.5px;color:var(--text-dim);}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-green);box-shadow:0 0 6px var(--accent-green);}
+  .no-data-row td{text-align:center;color:var(--text-dim);padding:30px;font-style:italic;}
+  .fade-in{animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg-deep);}
+  ::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--text-dim);}
+  @keyframes modalIn{from{opacity:0;transform:scale(.9) translateY(12px);}to{opacity:1;transform:scale(1) translateY(0);}}
+
+  /* Updated badge */
+  .update-badge{background:rgba(245,158,11,.1);color:var(--accent-amber);border:1px solid rgba(245,158,11,.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:500;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">
+      <img src="low.ico" style="width:24px;height:24px;object-fit:contain;" onerror="this.style.display='none';this.parentElement.textContent='📦'">
+    </div>
+    <div class="brand-text">
+      <h1>Inventory Management System</h1>
+      <p>Alestesharia Animal Nutrition</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="clock" id="clock">--:-- --</span>
+    <span class="badge-view">VIEW ONLY</span>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" onclick="refreshData()">Refresh</button>
+      <button class="btn btn-warning" onclick="printTable()">Print</button>
+      <button class="btn btn-success" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-about" onclick="showAbout()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        About
+      </button>
+      <button class="btn btn-logout" onclick="doLogout()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT MODAL -->
+<div id="aboutModal" onclick="if(event.target===this)closeAbout()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);align-items:center;justify-content:center;">
+  <div style="background:var(--bg-panel);border:1px solid var(--border-light);border-radius:18px;padding:38px 44px;min-width:320px;max-width:400px;box-shadow:0 12px 48px rgba(0,0,0,.7);text-align:center;position:relative;animation:modalIn .22s cubic-bezier(.34,1.56,.64,1);">
+    <button onclick="closeAbout()" style="position:absolute;top:14px;left:16px;background:none;border:none;color:var(--text-dim);font-size:17px;cursor:pointer;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+    <div style="width:58px;height:58px;margin:0 auto 20px;border-radius:15px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(59,130,246,.4);">
+      <img src="low.ico" style="width:100%;height:100%;object-fit:contain;border-radius:15px;">
+    </div>
+    <div style="font-size:17px;font-weight:700;margin-bottom:4px;">EST Inventory System</div>
+    <div style="font-size:11px;color:var(--accent-cyan);letter-spacing:1.2px;margin-bottom:22px;text-transform:uppercase;">Alestesharia Animal Nutrition</div>
+    <div style="height:1px;background:var(--border);margin-bottom:22px;"></div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Created by</div>
+    <div style="font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:22px;">Hamza K. Ghareb</div>
+    <div style="display:inline-block;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:5px 18px;font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">v2.0 — 2026 · View Only</div>
+    <div style="margin-top:16px;font-size:11px;color:var(--text-dim);">Last updated: <span id="lastUpdated">—</span></div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Months</div>
+      <div class="month-grid" id="monthGrid"></div>
+    </div>
+    <div class="sidebar-section" id="fileSection" style="display:none">
+      <div class="sidebar-label">Files</div>
+      <div class="file-selector" id="fileList"></div>
+    </div>
+    <div class="sidebar-section" id="sheetSection" style="display:none">
+      <div class="sidebar-label">Sheets</div>
+      <div class="sheet-tabs-list" id="sheetList"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="content-header">
+      <div class="content-title">
+        <div class="ct-icon">📋</div>
+        <div>
+          <h2 id="contentTitle">EST Inventory System</h2>
+          <div class="breadcrumb" id="breadcrumb">Select a month to begin</div>
+        </div>
+      </div>
+      <div class="content-meta">
+        <span class="badge badge-blue" id="recordCount">0 records</span>
+        <span class="update-badge" id="updateBadge" style="display:none"></span>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="s-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search data..." oninput="filterTable(this.value)">
+      </div>
+      <span style="font-size:12px;color:var(--text-dim)" id="filterInfo"></span>
+    </div>
+
+    <div class="table-wrap" id="tableWrap">
+      <div class="empty-state">
+        <div class="es-icon">📂</div>
+        <h3>No data to display</h3>
+        <p>Select a month from the sidebar, then choose a file and sheet to view data</p>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="statusbar-left">
+        <div class="status-dot"></div>
+        <span id="statusMsg">Ready</span>
+      </div>
+      <div class="statusbar-right">
+        <span id="pathInfo">—</span>
+        <span>Inventory Management System v2.0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AUTH CHECK ─────────────────────────────────────────────────────
+if(!sessionStorage.getItem('est_auth')){
+  window.location.href='login.html';
+}
+
+// ── STATE ──────────────────────────────────────────────────────────
+const state={
+  db: null,          // كل البيانات من data.json
+  selectedMonth: null,
+  selectedFile: null,
+  selectedSheet: null,
+  allRows: [],
+  headers: [],
+};
+
+const MONTH_NUMS={January:1,February:2,March:3,April:4,May:5,June:6,
+                  July:7,August:8,September:9,October:10,November:11,December:12};
+
+// ── CLOCK ──────────────────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  const d=now.toISOString().split('T')[0];
+  const t=now.toLocaleTimeString('en-US',{hour12:true,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('clock').textContent=d+'  '+t;
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── INIT: تحميل data.json ──────────────────────────────────────────
+async function init(){
+  setStatus('Loading data...');
+  showLoading();
+  try{
+    const res=await fetch('data.json?t='+Date.now());
+    if(!res.ok) throw new Error('data.json not found');
+    const json=await res.json();
+    state.db=json.data || {};
+
+    // عرض تاريخ آخر تحديث
+    if(json.generated){
+      document.getElementById('lastUpdated').textContent=json.generated;
+      const badge=document.getElementById('updateBadge');
+      badge.textContent='Updated: '+json.generated.split(' ')[0];
+      badge.style.display='';
+    }
+
+    buildMonthGrid();
+    setStatus('Data loaded successfully');
+    showEmptyState('Select a month to begin');
+  }catch(e){
+    showEmptyState('Error loading data');
+    setStatus('Error: '+e.message);
+    document.getElementById('tableWrap').innerHTML=`
+      <div class="empty-state">
+        <div class="es-icon">⚠️</div>
+        <h3>data.json not found</h3>
+        <p>Run export_to_web.py on your PC first, then upload data.json to GitHub</p>
+      </div>`;
+  }
+}
+
+// ── BUILD MONTH GRID ───────────────────────────────────────────────
+function buildMonthGrid(){
+  const grid=document.getElementById('monthGrid');
+  grid.innerHTML='';
+  const months=Object.keys(state.db).sort((a,b)=>(MONTH_NUMS[a]||0)-(MONTH_NUMS[b]||0));
+  months.forEach(month=>{
+    const files=state.db[month];
+    const hasData=Object.values(files).some(f=>Object.values(f).some(s=>s.count>0));
+    const pill=document.createElement('div');
+    pill.className='month-pill';
+    pill.dataset.month=month;
+    const num=String(MONTH_NUMS[month]||0).padStart(2,'0');
+    pill.innerHTML=`${month}<span class="num">${num}</span>`;
+    if(!hasData) pill.style.opacity='0.4';
+    pill.onclick=()=>selectMonth(month);
+    grid.appendChild(pill);
+  });
+}
+
+// ── SELECT MONTH ───────────────────────────────────────────────────
+function selectMonth(month){
+  state.selectedMonth=month;
+  state.selectedFile=null;
+  state.selectedSheet=null;
+  document.querySelectorAll('.month-pill').forEach(p=>p.classList.toggle('active',p.dataset.month===month));
+  const files=state.db[month]||{};
+  buildFileList(files);
+  document.getElementById('fileSection').style.display='';
+  document.getElementById('sheetSection').style.display='none';
+  showEmptyState(`Select a file from ${month}`);
+  updateHeader('Select a file',`2026 → ${month}`);
+  document.getElementById('pathInfo').textContent=`2026 / ${month}`;
+}
+
+// ── BUILD FILE LIST ────────────────────────────────────────────────
+function buildFileList(files){
+  const list=document.getElementById('fileList');
+  list.innerHTML='';
+  Object.keys(files).forEach(fname=>{
+    const item=document.createElement('div');
+    item.className='file-item';
+    item.dataset.name=fname;
+    item.innerHTML=`<span style="font-size:16px">📄</span>${fname}`;
+    item.onclick=()=>selectFile(fname);
+    list.appendChild(item);
+  });
+}
+
+// ── SELECT FILE ────────────────────────────────────────────────────
+function selectFile(fname){
+  state.selectedFile=fname;
+  state.selectedSheet=null;
+  document.querySelectorAll('.file-item').forEach(i=>i.classList.toggle('active',i.dataset.name===fname));
+  const sheets=Object.keys((state.db[state.selectedMonth]||{})[fname]||{});
+  buildSheetList(sheets);
+  document.getElementById('sheetSection').style.display='';
+  if(sheets.length>0) selectSheet(sheets[0]);
+  updateHeader(fname,`2026 → ${state.selectedMonth} → ${fname}`);
+}
+
+// ── BUILD SHEET LIST ───────────────────────────────────────────────
+function buildSheetList(sheets){
+  const list=document.getElementById('sheetList');
+  list.innerHTML='';
+  sheets.forEach(sh=>{
+    const tab=document.createElement('div');
+    tab.className='sheet-tab';
+    tab.dataset.sheet=sh;
+    tab.innerHTML=`<span class="st-dot"></span>${sh}`;
+    tab.onclick=()=>selectSheet(sh);
+    list.appendChild(tab);
+  });
+}
+
+// ── SELECT SHEET ───────────────────────────────────────────────────
+function selectSheet(sheet){
+  state.selectedSheet=sheet;
+  document.querySelectorAll('.sheet-tab').forEach(t=>t.classList.toggle('active',t.dataset.sheet===sheet));
+  showLoading();
+  const sheetData=((state.db[state.selectedMonth]||{})[state.selectedFile]||{})[sheet];
+  if(!sheetData){
+    showEmptyState('No data');
+    return;
+  }
+  state.headers=sheetData.headers||[];
+  state.allRows=sheetData.rows||[];
+  renderTable(state.headers,state.allRows);
+  updateHeader(sheet,`2026 → ${state.selectedMonth} → ${state.selectedFile} → ${sheet}`);
+  document.getElementById('recordCount').textContent=`${sheetData.count} records`;
+  setStatus(`Loaded ${state.selectedFile} / ${sheet}`);
+  document.getElementById('pathInfo').textContent=`2026 / ${state.selectedMonth} / ${state.selectedFile}.xlsm / ${sheet}`;
+  document.getElementById('searchInput').value='';
+  document.getElementById('filterInfo').textContent='';
+}
+
+// ── RENDER TABLE ───────────────────────────────────────────────────
+function renderTable(headers,rows){
+  const wrap=document.getElementById('tableWrap');
+  if(!headers.length){ showEmptyState('No data in this sheet'); return; }
+  let html=`<table class="data-table fade-in"><thead><tr><th class="row-num">#</th>`;
+  headers.forEach(h=>{ html+=`<th>${escHtml(h)}</th>`; });
+  html+=`</tr></thead><tbody>`;
+  if(!rows.length){
+    html+=`<tr class="no-data-row"><td colspan="${headers.length+1}">No data entered yet</td></tr>`;
+  }else{
+    rows.forEach((row,i)=>{
+      html+=`<tr data-row="${i}"><td class="row-num">${i+1}</td>`;
+      headers.forEach(h=>{
+        const val=row[h];
+        let cls='';
+        const hl=h.toLowerCase();
+        if(hl==='date'||hl==='التاريخ') cls='cell-date';
+        else if(hl==='in') cls='cell-in';
+        else if(hl==='out') cls='cell-out';
+        else if(hl.includes('balance')) cls='cell-balance';
+        const display=(val===null||val===undefined||val==='')?`<span class="cell-null">—</span>`:escHtml(String(val));
+        html+=`<td class="${cls}">${display}</td>`;
+      });
+      html+=`</tr>`;
+    });
+  }
+  html+=`</tbody></table>`;
+  wrap.innerHTML=html;
+}
+
+// ── FILTER ─────────────────────────────────────────────────────────
+function filterTable(query){
+  const q=query.trim().toLowerCase();
+  const rows=document.querySelectorAll('.data-table tbody tr[data-row]');
+  let visible=0;
+  rows.forEach(tr=>{
+    const show=!q||tr.textContent.toLowerCase().includes(q);
+    tr.style.display=show?'':'none';
+    if(show) visible++;
+  });
+  const info=document.getElementById('filterInfo');
+  info.textContent=q?`${visible} of ${state.allRows.length} results`:'';
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────
+function refreshData(){ init(); }
+
+function printTable(){
+  const table=document.querySelector('.data-table');
+  if(!table) return alert('No data to print');
+  const win=window.open('','_blank');
+  win.document.write(`<html><head><title>EST Inventory System</title>
+    <style>body{font-family:Arial,sans-serif;font-size:12px;}table{border-collapse:collapse;width:100%;}
+    th,td{border:1px solid #ccc;padding:6px 10px;text-align:center;}th{background:#1a3a5c;color:white;}
+    tr:nth-child(even){background:#f5f5f5;}</style></head><body>`);
+  win.document.write(`<h2>${state.selectedFile} / ${state.selectedSheet} — ${state.selectedMonth} 2026</h2>`);
+  win.document.write(table.outerHTML);
+  win.document.write('</body></html>');
+  win.document.close(); win.print();
+}
+
+function exportCSV(){
+  if(!state.headers.length) return alert('No data to export');
+  let csv='\uFEFF';
+  csv+=state.headers.join(',')+'\n';
+  state.allRows.forEach(row=>{
+    const vals=state.headers.map(h=>{
+      const v=row[h];
+      if(v===null||v===undefined) return '';
+      const s=String(v);
+      return s.includes(',')||s.includes('"')||s.includes('\n')?`"${s.replace(/"/g,'""')}"`:s;
+    });
+    csv+=vals.join(',')+'\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`${state.selectedFile}_${state.selectedSheet}_${state.selectedMonth}_2026.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function doLogout(){
+  if(confirm('Are you sure you want to logout?')){
+    sessionStorage.removeItem('est_auth');
+    sessionStorage.removeItem('est_user');
+    window.location.href='login.html';
+  }
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────
+function showEmptyState(msg){
+  document.getElementById('tableWrap').innerHTML=`
+    <div class="empty-state"><div class="es-icon">📂</div>
+    <h3>${msg}</h3><p>Select a month, file and sheet from the sidebar</p></div>`;
+}
+function showLoading(){
+  document.getElementById('tableWrap').innerHTML=`
+    <div class="loading"><div class="spinner"></div><span>Loading...</span></div>`;
+}
+function setStatus(msg){ document.getElementById('statusMsg').textContent=msg; }
+function updateHeader(title,bc){
+  document.getElementById('contentTitle').textContent=title;
+  document.getElementById('breadcrumb').textContent=bc;
+}
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showAbout(){ document.getElementById('aboutModal').style.display='flex'; }
+function closeAbout(){ document.getElementById('aboutModal').style.display='none'; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAbout(); });
+document.addEventListener('keydown',e=>{ if(e.ctrlKey&&e.key==='f'){e.preventDefault();document.getElementById('searchInput').focus();} });
+
+// ── START ──────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
